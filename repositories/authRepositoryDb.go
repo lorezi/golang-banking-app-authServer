@@ -24,16 +24,12 @@ func (r AuthRepositoryDb) FindByUsernameAndPassword(username string, password st
 
 	login := &domain.Login{}
 
-	// SELECT username, customer_id, role FROM users u WHERE username = ? and password = ?
-
-	// username, u.customer_id, role
-
 	sqlVerify := `
 
 	SELECT username, u.customer_id, role, group_concat(a.account_id) as account_numbers FROM users u
                   LEFT JOIN accounts a ON a.customer_id = u.customer_id
                 WHERE username = ? and password = ?
-                GROUP BY a.customer_id	
+                GROUP BY username, u.customer_id, role	
 	`
 
 	err := r.client.Get(login, sqlVerify, username, password)
