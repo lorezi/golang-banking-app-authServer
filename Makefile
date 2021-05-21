@@ -1,4 +1,4 @@
-APP?=banking_app_authServer_authServer
+APP?=auth_server
 
 .PHONY: build
 ## build: build the application
@@ -9,7 +9,7 @@ build: clean
 .PHONY: run
 ## run: runs the go run build-binary
 run: build
-	./banking_app_authServer
+	./auth_server
 
 .PHONY: watch
 ## watch: watch the project for go file changes
