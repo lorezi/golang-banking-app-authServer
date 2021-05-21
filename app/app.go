@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/lorezi/golang-bank-app-auth/db"
 
 	"github.com/subosito/gotenv"
 )
@@ -25,19 +26,19 @@ func Start() {
 	// created multiplexer
 	router := mux.NewRouter()
 
-	// dbClient := db.Connect()
+	db.Connect()
 
 	// authRepo := repositories.NewAuthRepositoryDb(dbClient)
 
-	// wiring
+	// // wiring
 
 	// auth := handlers.AuthHandler{
 	// 	Service: service.NewAuthService(authRepo),
 	// }
 
-	// defining routes
+	// // defining routes
 
-	// router.HandleFunc("/customers", auth.).Methods("GET")
+	// router.HandleFunc("/auth/login", auth.Login).Methods("POST")
 
 	// starting serve
 	addr := os.Getenv("SERVER_ADDRESS")
