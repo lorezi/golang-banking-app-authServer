@@ -1,6 +1,8 @@
 package errs
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type AppError struct {
 	Code    int    `json:"code,omitempty"`
@@ -42,6 +44,14 @@ func ValidationError(message string, status string) *AppError {
 func AuthenticationError(message string, status string) *AppError {
 	return &AppError{
 		Code:    http.StatusUnauthorized,
+		Status:  status,
+		Message: message,
+	}
+}
+
+func PermissionError(message string, status string) *AppError {
+	return &AppError{
+		Code:    http.StatusForbidden,
 		Status:  status,
 		Message: message,
 	}

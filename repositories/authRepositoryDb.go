@@ -3,6 +3,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lorezi/golang-bank-app-auth/domain"
@@ -46,9 +47,10 @@ func (r AuthRepositoryDb) FindByUsernameAndPassword(username string, password st
 }
 
 /* generate and store the token */
-func (r AuthRepositoryDb) StoreToken() (string, *errs.AppError) {
+func (r AuthRepositoryDb) StoreToken(user *domain.Login) (string, *errs.AppError) {
 	// generate token
-	token, appErr := utils.GenerateJwt()
+	tokenClaims := user.GenerateTokenClaims()
+	token, appErr := utils.GenerateJwt(&tokenClaims)
 	if appErr != nil {
 		return "", appErr
 	}
@@ -83,4 +85,21 @@ func (r AuthRepositoryDb) FindByToken(token string) *errs.AppError {
 	}
 
 	return nil
+}
+
+func (r AuthRepositoryDb) FindPermissionByRole(role string) ([]domain.Permission, *errs.AppError) {
+
+	sp := []domain.Permission{}
+
+	sqlSelect := fmt.Sprintf("SELECT permission_name FROM permissions WHERE role_name = '%s'", role)
+
+	err := r.client.Select(&sp, sqlSelect)
+
+	if err != nil {
+		logger.Error("Error while scanning permissions " + err.Error())
+		return nil, errs.UnExpectedError("unexpected database error", "error")
+	}
+
+	return sp, nil
+
 }
