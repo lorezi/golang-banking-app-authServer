@@ -5,6 +5,7 @@ import (
 	"github.com/lorezi/golang-bank-app-auth/errs"
 	"github.com/lorezi/golang-bank-app-auth/logger"
 	"github.com/lorezi/golang-bank-app-auth/ports"
+	"github.com/lorezi/golang-bank-app-auth/utils"
 )
 
 type AuthService struct {
@@ -34,4 +35,13 @@ func (s AuthService) Login(req dto.LoginRequest) (*dto.LoginResponse, *errs.AppE
 	}
 
 	return &dto.LoginResponse{AccessToken: token}, nil
+}
+
+func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
+	err := utils.Verify(urlParams["token"])
+	if err != nil {
+		return errs.AuthenticationError("invalid token", "authentication failure")
+	}
+
+	return nil
 }

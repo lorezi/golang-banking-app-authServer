@@ -7,4 +7,5 @@ import (
 
 type AuthService interface {
 	Login(req dto.LoginRequest) (*dto.LoginResponse, *errs.AppError)
+	Verify(urlParams map[string]string) *errs.AppError
 }
