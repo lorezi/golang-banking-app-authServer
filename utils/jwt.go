@@ -27,3 +27,18 @@ func GenerateJwt() (string, *errs.AppError) {
 
 	return token, nil
 }
+
+func Verify(token string) error {
+	jwtToken, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil || !jwtToken.Valid {
+		return err
+	}
+
+	// claims := jwtToken.Claims.(*jwt.StandardClaims)
+	_ = jwtToken.Claims.(*jwt.StandardClaims)
+
+	return nil
+}
