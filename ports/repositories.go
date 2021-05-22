@@ -7,6 +7,7 @@ import (
 
 type AuthRepository interface {
 	FindByUsernameAndPassword(username string, password string) (*domain.Login, *errs.AppError)
-	StoreToken() (string, *errs.AppError)
+	StoreToken(user *domain.Login) (string, *errs.AppError)
 	FindByToken(token string) *errs.AppError
+	FindPermissionByRole(role string) ([]domain.Permission, *errs.AppError)
 }

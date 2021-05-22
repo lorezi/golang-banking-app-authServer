@@ -2,6 +2,7 @@ package domain
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -13,10 +14,12 @@ type Login struct {
 	Role       string         `db:"role"`
 }
 
-type SignedDetails struct {
-	Username   string
-	CustomerId string
-	Accounts   string
-	Role       string
-	jwt.StandardClaims
+func (l Login) GenerateTokenClaims() AccessTokenClaims {
+	return AccessTokenClaims{
+		Username: l.Username,
+		Role:     l.Role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(ACCESS_TOKEN_DURATION).Unix(),
+		},
+	}
 }
