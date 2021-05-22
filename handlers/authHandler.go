@@ -41,9 +41,10 @@ func (h AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if urlParams["token"] != "" {
+
 		err := h.Service.Verify(urlParams)
 		if err != nil {
-			utils.Response(w, err.Code, err.ShowError())
+			utils.Response(w, err.Code, utils.NotAuthorizedResponse("invalid token"))
 			return
 		}
 		utils.Response(w, http.StatusOK, utils.AuthorizedResponse())

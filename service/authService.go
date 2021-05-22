@@ -58,7 +58,6 @@ func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
 	// 3. loop through the returned result to check if the url params has the name in the permission and then break
 	permission := false
 	for _, v := range permissions {
-
 		if strings.ToLower(urlParams["routName"]) == v.Name {
 			permission = true
 			break
