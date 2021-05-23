@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
@@ -40,7 +41,20 @@ func Verify(token string) (*domain.AccessTokenResponse, error) {
 		Role:     claims.Role,
 	}
 
-	// _ = jwtToken.Claims.(*jwt.StandardClaims)
-
 	return claimsDetail, nil
+}
+
+func IsAccessTokenValid(token string) *jwt.ValidationError {
+	// 1. checks the validity of the token not the expiration time
+	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+	if err != nil {
+		vErr := &jwt.ValidationError{}
+		if errors.As(err, &vErr) {
+			return vErr
+		}
+	}
+
+	return nil
 }
