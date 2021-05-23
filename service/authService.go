@@ -72,3 +72,8 @@ func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
 	return errs.PermissionError("you don't have the right permission. Pls contact administrator", "permission failure")
 
 }
+
+func (s AuthService) Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *errs.AppError) {
+
+	return nil, nil
+}
