@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/lorezi/golang-bank-app-auth/dto"
+	"github.com/lorezi/golang-bank-app-auth/logger"
 	"github.com/lorezi/golang-bank-app-auth/ports"
 	"github.com/lorezi/golang-bank-app-auth/utils"
 )
@@ -53,4 +54,22 @@ func (h AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
 
 	utils.Response(w, http.StatusForbidden, utils.NotAuthorizedResponse("missing token"))
 
+}
+
+func (h AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+
+	refreshReq := dto.RefreshTokenRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&refreshReq); err != nil {
+		logger.Error("Error while decoding refresh token request: " + err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		// add response function
+		return
+	}
+
+	token, appErr := h.Service.Refresh(refreshReq)
+	if appErr != nil {
+		utils.Response(w, appErr.Code, appErr.Message)
+	}
+
+	utils.Response(w, http.StatusOk, *token)
 }
