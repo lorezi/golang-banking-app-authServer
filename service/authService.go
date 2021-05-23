@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/lorezi/golang-bank-app-auth/domain"
 	"github.com/lorezi/golang-bank-app-auth/dto"
 	"github.com/lorezi/golang-bank-app-auth/errs"
 	"github.com/lorezi/golang-bank-app-auth/logger"
@@ -77,8 +76,8 @@ func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
 
 func (s AuthService) Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *errs.AppError) {
 
-	// 1. validate the token
-	err := req.IsAccessTokenValid()
+	// 1. validate the token not the token expiration time
+	err := utils.IsAccessTokenValid(req.AccessToken)
 	if err != nil {
 		return nil, errs.AuthenticationError("cannot generate a new access token until the current one expires", "access token generation failure")
 	}
@@ -92,7 +91,7 @@ func (s AuthService) Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *
 		}
 
 		// 3. generate a new access token from refresh token
-		accessToken, appErr := domain.NewAccessTokenFromRefreshToken(req.RefreshToken)
+		accessToken, appErr := utils.NewAccessTokenFromRefreshToken(req.RefreshToken)
 		if appErr != nil {
 			return nil, appErr
 		}

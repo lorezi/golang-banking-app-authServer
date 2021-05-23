@@ -13,17 +13,7 @@ import (
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
 func GenerateJwt(tokenClaims *domain.AccessTokenClaims) (string, *errs.AppError) {
-
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
-
-	token, err := claims.SignedString([]byte(SECRET_KEY))
-
-	if err != nil {
-		logger.Error("Failed while signing refresh token: " + err.Error())
-		return "", errs.UnExpectedError("cannot generate refresh token", "fail")
-	}
-
-	return token, nil
+	return newToken(tokenClaims)
 }
 
 func Verify(token string) (*domain.AccessTokenResponse, error) {
@@ -57,4 +47,32 @@ func IsAccessTokenValid(token string) *jwt.ValidationError {
 	}
 
 	return nil
+}
+
+func NewAccessTokenFromRefreshToken(refreshToken string) (string, *errs.AppError) {
+	token, err := jwt.ParseWithClaims(refreshToken, &domain.AccessTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil || !token.Valid {
+		return "", errs.UnExpectedError(err.Error(), "fail")
+	}
+
+	tokenClaims := token.Claims.(*domain.AccessTokenClaims)
+
+	return newToken(tokenClaims)
+
+}
+
+func newToken(tokenClaims jwt.Claims) (string, *errs.AppError) {
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
+
+	token, err := claims.SignedString([]byte(SECRET_KEY))
+
+	if err != nil {
+		logger.Error("Failed while signing refresh token: " + err.Error())
+		return "", errs.UnExpectedError("cannot generate refresh token", "fail")
+	}
+
+	return token, nil
 }

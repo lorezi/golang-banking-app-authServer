@@ -71,5 +71,5 @@ func (h AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		utils.Response(w, appErr.Code, appErr.Message)
 	}
 
-	utils.Response(w, http.StatusOk, *token)
+	utils.Response(w, http.StatusOK, *token)
 }
