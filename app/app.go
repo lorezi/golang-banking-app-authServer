@@ -45,7 +45,7 @@ func Start() {
 	// /verify
 	router.HandleFunc("/auth/verify", auth.Verify).Methods("GET")
 	// /refresh
-	router.HandleFunc("/auth/verify", auth.Refresh).Methods(http.MethodPost)
+	router.HandleFunc("/auth/refresh", auth.Refresh).Methods(http.MethodPost)
 
 	// starting serve
 	addr := os.Getenv("SERVER_ADDRESS")
