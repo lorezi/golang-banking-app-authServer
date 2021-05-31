@@ -3,6 +3,7 @@ package service
 import (
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/lorezi/golang-bank-app-auth/dto"
 	"github.com/lorezi/golang-bank-app-auth/errs"
 	"github.com/lorezi/golang-bank-app-auth/logger"
@@ -27,14 +28,14 @@ func (s AuthService) Login(req dto.LoginRequest) (*dto.LoginResponse, *errs.AppE
 
 	// verify password
 
-	token, err := s.repo.StoreToken(user)
+	token, refreshToken, err := s.repo.StoreToken(user)
 	if err != nil {
 		logger.Error("error while generating and storing token")
 
 		return nil, errs.AuthenticationError("invalid credential", "authentication failure")
 	}
 
-	return &dto.LoginResponse{AccessToken: token}, nil
+	return &dto.LoginResponse{AccessToken: token, RefreshToken: refreshToken}, nil
 }
 
 func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
@@ -70,5 +71,33 @@ func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
 	}
 
 	return errs.PermissionError("you don't have the right permission. Pls contact administrator", "permission failure")
+
+}
+
+func (s AuthService) Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *errs.AppError) {
+
+	// 1. validate the token not the token expiration time
+	err := utils.IsAccessTokenValid(req.AccessToken)
+	if err != nil {
+		return nil, errs.AuthenticationError("cannot generate a new access token until the current one expires", "access token generation failure")
+	}
+
+	// can only generate a new access token when the previous token has expired
+	if err.Errors == jwt.ValidationErrorExpired {
+		// 2. find token in database if it exist
+		appErr := s.repo.FindByToken(req.RefreshToken)
+		if appErr != nil {
+			return nil, appErr
+		}
+
+		// 3. generate a new access token from refresh token
+		accessToken, appErr := utils.NewAccessTokenFromRefreshToken(req.RefreshToken)
+		if appErr != nil {
+			return nil, appErr
+		}
+		return &dto.LoginResponse{AccessToken: accessToken}, nil
+	}
+
+	return nil, errs.AuthenticationError("invalid token", "new access token generation failure")
 
 }

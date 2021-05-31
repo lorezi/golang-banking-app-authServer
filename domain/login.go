@@ -23,3 +23,14 @@ func (l Login) GenerateTokenClaims() AccessTokenClaims {
 		},
 	}
 }
+
+func (l Login) GenerateRefreshTokenClaims() RefreshTokenClaims {
+	return RefreshTokenClaims{
+		TokenType: "refresh_token",
+		Username:  l.Username,
+		Role:      l.Role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(REFRESH_TOKEN_DURATION).Unix(),
+		},
+	}
+}
