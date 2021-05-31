@@ -46,26 +46,32 @@ func (r AuthRepositoryDb) FindByUsernameAndPassword(username string, password st
 
 }
 
-/* generate and store the token */
-func (r AuthRepositoryDb) StoreToken(user *domain.Login) (string, *errs.AppError) {
+// generate and store the token - returns token, refreshToken and error
+func (r AuthRepositoryDb) StoreToken(user *domain.Login) (string, string, *errs.AppError) {
 	// generate token
 	tokenClaims := user.GenerateTokenClaims()
 	token, appErr := utils.GenerateJwt(&tokenClaims)
 	if appErr != nil {
-		return "", appErr
+		return "", "", appErr
+	}
+
+	// the refresh access token is use to generate a new access token once
+	refreshTokenClaims := user.GenerateRefreshTokenClaims()
+	refreshToken, appErr := utils.GenerateRefreshJwt(&refreshTokenClaims)
+	if appErr != nil {
+		return "", "", appErr
 	}
 
 	// save it in the store
 	sqlInsert := "INSERT into refresh_token_store (refresh_token) values (?)"
 
-	_, err := r.client.Exec(sqlInsert, token)
+	_, err := r.client.Exec(sqlInsert, refreshToken)
 	if err != nil {
 		logger.Error("unexpected database error: " + err.Error())
-
-		return "", errs.UnExpectedError("unexpected database error", "error")
+		return "", "", errs.UnExpectedError("unexpected database error", "error")
 	}
 
-	return token, nil
+	return token, refreshToken, nil
 }
 
 // refresh the token if it exists

@@ -16,6 +16,10 @@ func GenerateJwt(tokenClaims *domain.AccessTokenClaims) (string, *errs.AppError)
 	return newToken(tokenClaims)
 }
 
+func GenerateRefreshJwt(refreshTokenClaims *domain.RefreshTokenClaims) (string, *errs.AppError) {
+	return newToken(refreshTokenClaims)
+}
+
 func Verify(token string) (*domain.AccessTokenResponse, error) {
 	jwtToken, err := jwt.ParseWithClaims(token, &domain.AccessTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(SECRET_KEY), nil

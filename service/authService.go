@@ -28,14 +28,14 @@ func (s AuthService) Login(req dto.LoginRequest) (*dto.LoginResponse, *errs.AppE
 
 	// verify password
 
-	token, err := s.repo.StoreToken(user)
+	token, refreshToken, err := s.repo.StoreToken(user)
 	if err != nil {
 		logger.Error("error while generating and storing token")
 
 		return nil, errs.AuthenticationError("invalid credential", "authentication failure")
 	}
 
-	return &dto.LoginResponse{AccessToken: token}, nil
+	return &dto.LoginResponse{AccessToken: token, RefreshToken: refreshToken}, nil
 }
 
 func (s AuthService) Verify(urlParams map[string]string) *errs.AppError {
